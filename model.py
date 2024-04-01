@@ -68,7 +68,7 @@ class MSA(nn.Module):
         attn_weight = F.softmax(attn_score / (self.head_size ** 0.5), dim=3)
         # attn_weight = self.drop(attn_weight)
         x = torch.einsum("bhnm,bhmd->bhnd", attn_weight, v)
-         # "$U_{msa} \in \mathbb{R}^{k \cdot D_{h} \times D}$"
+        # "$U_{msa} \in \mathbb{R}^{k \cdot D_{h} \times D}$"
         x = rearrange(x, pattern="b h n d -> b n (h d)")
         x = self.out_proj(x)
         # "Dropout is applied after every dense layer except for the the qkv-projections
@@ -146,9 +146,11 @@ class TransformerEncoder(nn.Module):
 
 
 class ViT(nn.Module):
-    # ViT-Base: `n_layers=12, hidden_size=768, mlp_size=3072, n_heads=12`
-    # ViT-Large: `n_layers=24, hidden_size=1024, mlp_size=4096, n_heads=16`
-    # ViT-Huge: `n_layers=32, hidden_size=1280, mlp_size=5120, n_heads=16`
+    """
+    ViT-Base: `n_layers=12, hidden_size=768, mlp_size=3072, n_heads=12`
+    ViT-Large: `n_layers=24, hidden_size=1024, mlp_size=4096, n_heads=16`
+    ViT-Huge: `n_layers=32, hidden_size=1280, mlp_size=5120, n_heads=16`
+    """
     def __init__(
         self,
         img_size=224,
@@ -172,7 +174,7 @@ class ViT(nn.Module):
         # $\textbf{E}$ of the equation 1 in the paper
         self.patch_embed = PatchEmbedding(patch_size=patch_size, hidden_size=hidden_size)
         self.cls_token = nn.Parameter(torch.randn((1, 1, hidden_size))) # $x_{\text{class}}$
-         # $\textbf{E}_\text{pos}$
+        # $\textbf{E}_\text{pos}$
         self.pos_embed = nn.Parameter(torch.randn((1, n_patches + 1, hidden_size)))
         self.drop1 = nn.Dropout(drop_prob)
         self.tf_enc = TransformerEncoder(
@@ -219,6 +221,3 @@ if __name__ == "__main__":
     )
     out = vit(image)
     print(out.shape)
-
-
-# "we optimize three basic regularization parameters – weight decay, dropout, and label smoothing. Figure"
